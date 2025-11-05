@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Video } from '../types';
 import { X } from './Icons';
 
@@ -25,6 +25,33 @@ const VideoModal: React.FC<VideoModalProps> = ({ video, onClose }) => {
     }
   };
 
+  // Video element ref so we can control playback and cleanup
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+
+  // When the videoUrl changes (a new video is selected), try to play and ensure cleanup on unmount/close
+  useEffect(() => {
+    const el = videoRef.current;
+    if (!el) return;
+
+    // Attempt to play (may be blocked unless muted or user gesture exists) - silent failure is fine
+    el.currentTime = 0;
+    el.play().catch(() => {
+      // autoplay may be blocked; user can still press play because controls are shown
+    });
+
+    return () => {
+      // Pause and release source on cleanup
+      try {
+        el.pause();
+        // Optional: remove src to free memory when modal closes
+        // eslint-disable-next-line no-param-reassign
+        el.removeAttribute('src');
+      } catch (e) {
+        // ignore
+      }
+    };
+  }, [video.videoUrl]);
+
   return (
     <div
       onClick={handleBackdropClick}
@@ -48,12 +75,24 @@ const VideoModal: React.FC<VideoModalProps> = ({ video, onClose }) => {
           <X className="w-1/2 h-1/2"/>
         </button>
 
-        {/* Video Player Placeholder */}
+        {/* Video Player */}
         <div className="relative w-full aspect-video bg-black flex items-center justify-center mb-[3vh]">
           <div className="absolute top-0 left-0 p-4 md:p-8 z-10 pointer-events-none">
             <h3 className="text-white font-bold text-lg md:text-2xl">{video.title}</h3>
           </div>
-          <span className="text-white/50 text-lg">Video Player Not Implemented</span>
+          <video
+            ref={videoRef}
+            controls
+            autoPlay
+            muted
+            playsInline
+            poster={video.thumbnail}
+            className="relative w-full h-full object-contain bg-black"
+          >
+            {/* Use video.videoUrl directly; works with absolute URLs and with files served from public/ */}
+            <source src={video.videoUrl} type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
         </div>
 
         {/* Video Information */}

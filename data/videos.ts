@@ -1,5 +1,22 @@
 import { VideoData } from '../types';
 
+/*
+  Ejemplos para usar videos locales:
+
+  1) Usar la carpeta `public/` (más sencillo):
+    - Coloca `mi-video.mp4` en `public/videos/mi-video.mp4`
+    - En un objeto video usa: videoUrl: '/videos/mi-video.mp4'
+
+  2) Importar el asset para que el bundler lo procese (requiere la declaración de módulos .mp4):
+    - Mueve el archivo a `src/assets/videos/mi-video.mp4` o similar
+    - Asegúrate de tener `types/custom.d.ts` con `declare module '*.mp4';` (ya creado)
+    - Importa y usa:
+      import miVideo from '../assets/videos/mi-video.mp4';
+      videoUrl: miVideo
+
+  El proyecto ya incluye la declaración `types/custom.d.ts` para soportar imports de .mp4, .webm y .ogg.
+*/
+
 const sampleVideos = [
   "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
   "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
